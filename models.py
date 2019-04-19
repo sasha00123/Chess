@@ -21,7 +21,7 @@ class Piece:
         raise NotImplementedError
 
     def can_attack(self, board, row, col, row1, col1):
-        raise NotImplementedError
+        return self.can_move(board, row, col, row1, col1)
 
 
 # TODO: Проверка на шах, мат, пат, оппозицию
@@ -98,9 +98,12 @@ class Board:
         if piece is None:
             return False
 
-        # TODO: рокировка -> Добавить
+        # TODO: рокировка
         # Стоит сделать здесь, потому что метод can_move не должен менять фигуру.
         # Возможно, стоит сделать общий метод move у класса Piece и переопределить его у короля
+
+        # TODO: шах
+        # Нужно создать копию доски. проверить. что нет шаха, и только если все хорошо - передвигать и возвращать True
 
         if piece.get_color() != self.color:
             return False
@@ -140,9 +143,6 @@ class Rook(Piece):
                 return False
 
         return True
-
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
 
 
 class Pawn(Piece):
@@ -188,10 +188,9 @@ class Knight(Piece):
     ch = 'N'  # kNight, буква 'K' уже занята королём
 
     def can_move(self, board, row, col, row1, col1):
-        return True  # Заглушка
-
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+        dx = abs(row1 - row)
+        dy = abs(col1 - col)
+        return dx <= 2 and dy <= 2 and dx + dy == 3
 
 
 class King(Piece):
@@ -199,9 +198,6 @@ class King(Piece):
 
     def can_move(self, board, row, col, row1, col1):
         return abs(row - row1) <= 1 and abs(col - col1) <= 1
-
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
 
 
 class Bishop(Piece):
@@ -222,19 +218,10 @@ class Bishop(Piece):
                 return False
         return True
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
-
 
 class Queen(Piece):
-    """
-    Класс ферзя. Пока что заглушка, которая может ходить в любую клетку.
-    """
     ch = 'Q'
 
     def can_move(self, board, row, col, row1, col1):
         return Rook(self.color).can_move(board, row, col, row1, col1) or \
                Bishop(self.color).can_move(board, row, col, row1, col1)
-
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
