@@ -225,9 +225,9 @@ class Bishop(Piece):
             return False
 
         sx = 1 if row < row1 else -1
-        sy = 1 if col < col else -1
+        sy = 1 if col < col1 else -1
 
-        while row != row1:
+        while row + sx != row1:
             row += sx
             col += sy
             if board.get_piece(row, col) is not None:
