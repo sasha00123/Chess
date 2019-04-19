@@ -24,6 +24,8 @@ class Piece:
         raise NotImplementedError
 
 
+# TODO: Проверка на шах, мат, пат, оппозицию
+
 class Board:
     color = WHITE
     field: List[List[Optional[Piece]]] = [[None] * 8 for i in range(8)]
@@ -95,6 +97,11 @@ class Board:
         piece = self.field[row][col]
         if piece is None:
             return False
+
+        # TODO: рокировка -> Добавить
+        # Стоит сделать здесь, потому что метод can_move не должен менять фигуру.
+        # Возможно, стоит сделать общий метод move у класса Piece и переопределить его у короля
+
         if piece.get_color() != self.color:
             return False
         if self.field[row1][col1] is None:
@@ -188,35 +195,16 @@ class Knight(Piece):
 
 
 class King(Piece):
-    """
-    Класс короля. Пока что заглушка, которая может ходить в любую клетку.
-    """
     ch = 'K'
 
     def can_move(self, board, row, col, row1, col1):
-        return True  # Заглушка
-
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
-
-
-class Queen(Piece):
-    """
-    Класс ферзя. Пока что заглушка, которая может ходить в любую клетку.
-    """
-    ch = 'Q'
-
-    def can_move(self, board, row, col, row1, col1):
-        return True  # Заглушка
+        return abs(row - row1) <= 1 and abs(col - col1) <= 1
 
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
 
 class Bishop(Piece):
-    """
-    Класс слона. Пока что заглушка, которая может ходить в любую клетку.
-    """
     ch = 'B'
 
     def can_move(self, board, row, col, row1, col1):
@@ -233,6 +221,20 @@ class Bishop(Piece):
             if board.get_piece(row, col) is not None:
                 return False
         return True
+
+    def can_attack(self, board, row, col, row1, col1):
+        return self.can_move(board, row, col, row1, col1)
+
+
+class Queen(Piece):
+    """
+    Класс ферзя. Пока что заглушка, которая может ходить в любую клетку.
+    """
+    ch = 'Q'
+
+    def can_move(self, board, row, col, row1, col1):
+        return Rook(self.color).can_move(board, row, col, row1, col1) or \
+               Bishop(self.color).can_move(board, row, col, row1, col1)
 
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
