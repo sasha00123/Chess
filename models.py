@@ -1,3 +1,4 @@
+import copy
 from typing import List, Optional
 from helper import *
 
@@ -29,6 +30,30 @@ class Piece:
 class Board:
     color = WHITE
     field: List[List[Optional[Piece]]] = [[None] * 8 for i in range(8)]
+
+    def check_field(self):
+        """
+        Возвращает -1 если шаха нет, иначе число, соотвествующее цвету стороны, которой шах
+        """
+        bkx, bky = -1, -1
+        wkx, wky = -1, -1
+
+        for i in range(8):
+            for j in range(8):
+                if isinstance(self.field[i][j], King):
+                    if self.field[i][j].color == WHITE:
+                        wkx, wky = i, j
+                    else:
+                        bkx, bky = i, j
+
+        for i in range(8):
+            for j in range(8):
+                if self.field[i][j] is not None:
+                    if self.field[i][j].color == WHITE and self.field[i][j].can_attack(self, i, j, bkx, bky):
+                        return BLACK
+                    if self.field[i][j].color == BLACK and self.field[i][j].can_attack(self, i, j, wkx, wky):
+                        return WHITE
+        return -1
 
     def __init__(self):
         self.field[0] = [
@@ -115,9 +140,16 @@ class Board:
                 return False
         else:
             return False
-        self.field[row][col] = None  # Снять фигуру.
-        self.field[row1][col1] = piece  # Поставить на новое место.
+
+        new_field = copy.deepcopy(self)
+        new_field.field[row][col] = None  # Снять фигуру.
+        new_field.field[row1][col1] = piece  # Поставить на новое место.
+        if new_field.check_field() == self.color:
+            return False
+
+        self.field = copy.deepcopy(new_field.field)
         self.color = opponent(self.color)
+
         return True
 
 
